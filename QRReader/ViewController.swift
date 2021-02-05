@@ -16,10 +16,11 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         self.QRReaderView.delegate = self
-        initQRReaderView(QRReaderView: QRReaderView)
         self.view.addSubview(QRReaderView)
     }
-
+    override func viewDidLayoutSubviews() {
+        initQRReaderView(QRReaderView: QRReaderView)
+    }
 
 }
 

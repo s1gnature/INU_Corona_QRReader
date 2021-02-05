@@ -18,14 +18,34 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iau-MG-8mp" customClass="ReaderView" customModule="QRReader" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="44" width="414" height="818"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <rect key="frame" x="0.0" y="88" width="414" height="774"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="72k-P5-ck9">
+                                <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="QR스캔" textAlignment="natural" lineBreakMode="wordWrap" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Za9-kC-WFo">
+                                        <rect key="frame" x="179" y="11.5" width="56" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="18"/>
+                                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="QS1-fe-gsQ"/>
+                                    <constraint firstItem="Za9-kC-WFo" firstAttribute="centerX" secondItem="72k-P5-ck9" secondAttribute="centerX" id="pXY-pq-Z5X"/>
+                                    <constraint firstItem="Za9-kC-WFo" firstAttribute="centerY" secondItem="72k-P5-ck9" secondAttribute="centerY" id="uk7-nJ-JmR"/>
+                                </constraints>
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="iau-MG-8mp" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="BhF-of-c2c"/>
+                            <constraint firstItem="72k-P5-ck9" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="10i-hf-gSX"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="72k-P5-ck9" secondAttribute="trailing" id="2pR-oB-xJP"/>
+                            <constraint firstItem="iau-MG-8mp" firstAttribute="top" secondItem="72k-P5-ck9" secondAttribute="bottom" id="OMc-GG-bXm"/>
+                            <constraint firstItem="72k-P5-ck9" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="T9I-vj-JXj"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="iau-MG-8mp" secondAttribute="bottom" id="fBW-sL-5Fh"/>
                             <constraint firstItem="iau-MG-8mp" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="qYo-H9-nUU"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="iau-MG-8mp" secondAttribute="trailing" id="t4h-lc-brl"/>
@@ -37,7 +57,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="35" y="17"/>
+            <point key="canvasLocation" x="34.782608695652179" y="16.741071428571427"/>
         </scene>
     </scenes>
     <resources>
