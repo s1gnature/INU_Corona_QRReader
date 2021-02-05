@@ -94,9 +94,13 @@ class ReaderView: UIView {
         }
                 
         self.setPreviewLayer()
-        // QRCode 인식 범위 설정하기
+        /*
+         // QRCode 인식 범위 설정하기
+         metadataOutput.rectOfInterest 는 AVCaptureSession에서 CGRect 크기만큼 인식 구역으로 지정합니다.
+         !! 단 해당 값은 먼저 AVCaptureSession를 running 상태로 만든 후 지정해주어야 정상적으로 작동합니다 !!
+         */
+        self.start()
         metadataOutput.rectOfInterest = previewLayer!.metadataOutputRectConverted(fromLayerRect: rectOfInterest)
-//        self.setCenterGuideLineView()
     }
     
     private func setPreviewLayer() {
@@ -145,6 +149,7 @@ class ReaderView: UIView {
 
 extension ReaderView {
     func start() {
+        print("# AVCaptureSession Start Running")
         self.captureSession?.startRunning()
     }
     
@@ -177,7 +182,9 @@ extension ReaderView: AVCaptureMetadataOutputObjectsDelegate {
             }
 
             AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+//            AudioServicesPlayAlertSound(SystemSoundID(1407)) // Appstore purchase sound
             found(code: stringValue)
+            print("## Found metadata Value\n + \(stringValue)\n")
             stop(isButtonTap: true)
         }
     }
