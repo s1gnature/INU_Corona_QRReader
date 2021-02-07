@@ -24,9 +24,15 @@ class ReaderView: UIView {
 
     // 동영상 화면을 보여줄 Layer
     var previewLayer: AVCaptureVideoPreviewLayer?
-    
     var captureSession: AVCaptureSession?
 
+    private var cornerLength: CGFloat = 30
+    private var rectOfInterest: CGRect {
+        CGRect(x: (bounds.width / 2) - (200 / 2),
+        y: (bounds.height / 2) - (200 / 2),
+        width: 200, height: 200)
+    }
+    
     var isRunning: Bool {
         guard let captureSession = self.captureSession else {
             return false
@@ -48,12 +54,8 @@ class ReaderView: UIView {
         self.initialSetupView()
     }
     
+    /// AVCaptureSession을 실행하는 화면을 구성 후 실행합니다.
     private func initialSetupView() {
-        var rectOfInterest: CGRect {
-            CGRect(x: (bounds.width / 2) - (200 / 2),
-            y: (bounds.height / 2) - (200 / 2),
-            width: 200, height: 200)
-        }
         self.clipsToBounds = true
         self.captureSession = AVCaptureSession()
         
@@ -103,6 +105,7 @@ class ReaderView: UIView {
         metadataOutput.rectOfInterest = previewLayer!.metadataOutputRectConverted(fromLayerRect: rectOfInterest)
     }
     
+    /// 중앙에 사각형의 Focus Zone Layer을 설정합니다.
     private func setPreviewLayer() {
         let readingRect = CGRect(x: self.center.x - 100, y: self.center.y - 200, width: 200, height: 200)
         
@@ -144,6 +147,23 @@ class ReaderView: UIView {
         
         self.layer.addSublayer(previewLayer)
         self.previewLayer = previewLayer
+    }
+    
+    
+    /// Focus Zone의 모서리에 테두리 Layer을 씌웁니다.
+    private func setFocusZoneCornerLayer() {
+        if cornerLength > rectOfInterest.width / 2 { cornerLength = rectOfInterest.width / 2 }
+
+        // Focus Zone의 각 모서리
+        let upperLeftPoint = CGPoint(x: rectOfInterest.minX, y: rectOfInterest.minY)
+        let upperRightPoint = CGPoint(x: rectOfInterest.maxX, y: rectOfInterest.minY)
+        let lowerRightPoint = CGPoint(x: rectOfInterest.maxX, y: rectOfInterest.maxY)
+        let lowerLeftPoint = CGPoint(x: rectOfInterest.minX, y: rectOfInterest.maxY)
+        
+        let upperLeftCorner = UIBezierPath()
+        upperLeftCorner.move(to: upperLeftPoint.offsetBy(dx: 0, dy: cornerLength))
+        upperLeftCorner.addArc(withCenter: <#T##CGPoint#>, radius: <#T##CGFloat#>, startAngle: <#T##CGFloat#>, endAngle: <#T##CGFloat#>, clockwise: <#T##Bool#>)
+        
     }
 }
 
@@ -187,5 +207,17 @@ extension ReaderView: AVCaptureMetadataOutputObjectsDelegate {
             print("## Found metadata Value\n + \(stringValue)\n")
             stop(isButtonTap: true)
         }
+    }
+}
+
+internal extension CGPoint {
+
+    // MARK: - CGPoint+offsetBy
+
+    func offsetBy(dx: CGFloat, dy: CGFloat) -> CGPoint {
+        var point = self
+        point.x += dx
+        point.y += dy
+        return point
     }
 }
