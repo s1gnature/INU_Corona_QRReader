@@ -5,4 +5,4 @@
   stdno <br>
   YYYYMMDD <br>
   HHMM <br>
-  -> stdno[LF]YYYYMMDD[LF]HHMM
+  cf) stdno[LF]YYYYMMDD[LF]HHMM
