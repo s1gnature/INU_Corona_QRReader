@@ -24,10 +24,12 @@ class ViewController: UIViewController {
 
 }
 
+// MARK: - initReaderView
 private func initQRReaderView(QRReaderView: ReaderView){
     QRReaderView.start()
 }
 
+// MARK: - ReaderView
 extension ViewController: ReaderViewDelegate {
     func readerComplete(status: ReaderStatus) {
         var title = ""

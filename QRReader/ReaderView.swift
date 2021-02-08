@@ -38,11 +38,10 @@ class ReaderView: UIView {
         guard let captureSession = self.captureSession else {
             return false
         }
-
         return captureSession.isRunning
     }
     
-    // 촬영 시 어떤 데이터를 검사할건지?
+    // 촬영 시 어떤 데이터를 검사할건지? - QRCode
     let metadataObjectTypes: [AVMetadataObject.ObjectType] = [.qr]
     
     override init(frame: CGRect) {
@@ -115,16 +114,21 @@ class ReaderView: UIView {
             return
         }
         
+        /*
+         AVCaptureVideoPreviewLayer를 구성.
+         */
         let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
         previewLayer.frame = self.layer.bounds
-        previewLayer.backgroundColor = UIColor(displayP3Red: 0, green: 0, blue: 0, alpha: 0.6).cgColor
 
-        // MARK: - Background Mask
-        
+        // MARK: - Scan Focus Mask
+        /*
+         Scan 할 사각형(Focus Zone)을 구성하고 해당 자리만 dimmed 처리를 하지 않음.
+         */
         /*
          CAShapeLayer에서 어떠한 모양(다각형, 폴리곤 등의 도형)을 그리고자 할 때 CGPath를 사용한다.
-         즉 previewLayer에다가 ShapeLayer를 그리는데 ShapeLayer의 모양이 [1. bounds 크기의 사각형, 2. readingRect 크기의 사각형]
+         즉 previewLayer에다가 ShapeLayer를 그리는데
+         ShapeLayer의 모양이 [1. bounds 크기의 사각형, 2. readingRect 크기의 사각형]
          두개가 그려져 있는 것이다.
          */
         let path = CGMutablePath()
@@ -151,19 +155,20 @@ class ReaderView: UIView {
         self.previewLayer = previewLayer
     }
     
-    
+    // MARK: - Focus Edge Layer
     /// Focus Zone의 모서리에 테두리 Layer을 씌웁니다.
     private func setFocusZoneCornerLayer() {
         var cornerRadius = previewLayer?.cornerRadius ?? CALayer().cornerRadius
         if cornerRadius > cornerLength { cornerRadius = cornerLength }
         if cornerLength > rectOfInterest.width / 2 { cornerLength = rectOfInterest.width / 2 }
 
-        // Focus Zone의 각 모서리
+        // Focus Zone의 각 모서리 point
         let upperLeftPoint = CGPoint(x: rectOfInterest.minX - cornerLineWidth / 2, y: rectOfInterest.minY - cornerLineWidth / 2)
         let upperRightPoint = CGPoint(x: rectOfInterest.maxX + cornerLineWidth / 2, y: rectOfInterest.minY - cornerLineWidth / 2)
         let lowerRightPoint = CGPoint(x: rectOfInterest.maxX + cornerLineWidth / 2, y: rectOfInterest.maxY + cornerLineWidth / 2)
         let lowerLeftPoint = CGPoint(x: rectOfInterest.minX - cornerLineWidth / 2, y: rectOfInterest.maxY + cornerLineWidth / 2)
         
+        // 각 모서리를 중심으로 한 Edge를 그림.
         let upperLeftCorner = UIBezierPath()
         upperLeftCorner.move(to: upperLeftPoint.offsetBy(dx: 0, dy: cornerLength))
         upperLeftCorner.addArc(withCenter: upperLeftPoint.offsetBy(dx: cornerRadius, dy: cornerRadius), radius: cornerRadius, startAngle: .pi, endAngle: 3 * .pi / 2, clockwise: true)
@@ -187,6 +192,7 @@ class ReaderView: UIView {
                                 radius: cornerRadius, startAngle: .pi / 2, endAngle: .pi, clockwise: true)
         bottomLeftCorner.addLine(to: lowerLeftPoint.offsetBy(dx: 0, dy: -cornerLength))
         
+        // 그려진 UIBezierPath를 묶어서 CAShapeLayer에 path를 추가 후 화면에 추가.
         let combinedPath = CGMutablePath()
         combinedPath.addPath(upperLeftCorner.cgPath)
         combinedPath.addPath(upperRightCorner.cgPath)
@@ -204,6 +210,7 @@ class ReaderView: UIView {
     }
 }
 
+// MARK: - ReaderView Running Method
 extension ReaderView {
     func start() {
         print("# AVCaptureSession Start Running")
@@ -226,6 +233,7 @@ extension ReaderView {
     }
 }
 
+// MARK: - AVCapture Output
 extension ReaderView: AVCaptureMetadataOutputObjectsDelegate {
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         
@@ -250,7 +258,6 @@ extension ReaderView: AVCaptureMetadataOutputObjectsDelegate {
 internal extension CGPoint {
 
     // MARK: - CGPoint+offsetBy
-
     func offsetBy(dx: CGFloat, dy: CGFloat) -> CGPoint {
         var point = self
         point.x += dx
