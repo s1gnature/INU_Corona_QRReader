@@ -26,11 +26,12 @@ class ReaderView: UIView {
     var previewLayer: AVCaptureVideoPreviewLayer?
     var captureSession: AVCaptureSession?
 
-    private var cornerLength: CGFloat = 30
+    private var cornerLength: CGFloat = 20
+    private var cornerLineWidth: CGFloat = 6
     private var rectOfInterest: CGRect {
         CGRect(x: (bounds.width / 2) - (200 / 2),
-        y: (bounds.height / 2) - (200 / 2),
-        width: 200, height: 200)
+               y: (bounds.height / 2) - (200 / 2),
+                          width: 200, height: 200)
     }
     
     var isRunning: Bool {
@@ -96,6 +97,7 @@ class ReaderView: UIView {
         }
                 
         self.setPreviewLayer()
+        self.setFocusZoneCornerLayer()
         /*
          // QRCode 인식 범위 설정하기
          metadataOutput.rectOfInterest 는 AVCaptureSession에서 CGRect 크기만큼 인식 구역으로 지정합니다.
@@ -107,7 +109,7 @@ class ReaderView: UIView {
     
     /// 중앙에 사각형의 Focus Zone Layer을 설정합니다.
     private func setPreviewLayer() {
-        let readingRect = CGRect(x: self.center.x - 100, y: self.center.y - 200, width: 200, height: 200)
+        let readingRect = rectOfInterest
         
         guard let captureSession = self.captureSession else {
             return
@@ -152,18 +154,53 @@ class ReaderView: UIView {
     
     /// Focus Zone의 모서리에 테두리 Layer을 씌웁니다.
     private func setFocusZoneCornerLayer() {
+        var cornerRadius = previewLayer?.cornerRadius ?? CALayer().cornerRadius
+        if cornerRadius > cornerLength { cornerRadius = cornerLength }
         if cornerLength > rectOfInterest.width / 2 { cornerLength = rectOfInterest.width / 2 }
 
         // Focus Zone의 각 모서리
-        let upperLeftPoint = CGPoint(x: rectOfInterest.minX, y: rectOfInterest.minY)
-        let upperRightPoint = CGPoint(x: rectOfInterest.maxX, y: rectOfInterest.minY)
-        let lowerRightPoint = CGPoint(x: rectOfInterest.maxX, y: rectOfInterest.maxY)
-        let lowerLeftPoint = CGPoint(x: rectOfInterest.minX, y: rectOfInterest.maxY)
+        let upperLeftPoint = CGPoint(x: rectOfInterest.minX - cornerLineWidth / 2, y: rectOfInterest.minY - cornerLineWidth / 2)
+        let upperRightPoint = CGPoint(x: rectOfInterest.maxX + cornerLineWidth / 2, y: rectOfInterest.minY - cornerLineWidth / 2)
+        let lowerRightPoint = CGPoint(x: rectOfInterest.maxX + cornerLineWidth / 2, y: rectOfInterest.maxY + cornerLineWidth / 2)
+        let lowerLeftPoint = CGPoint(x: rectOfInterest.minX - cornerLineWidth / 2, y: rectOfInterest.maxY + cornerLineWidth / 2)
         
         let upperLeftCorner = UIBezierPath()
         upperLeftCorner.move(to: upperLeftPoint.offsetBy(dx: 0, dy: cornerLength))
-        upperLeftCorner.addArc(withCenter: <#T##CGPoint#>, radius: <#T##CGFloat#>, startAngle: <#T##CGFloat#>, endAngle: <#T##CGFloat#>, clockwise: <#T##Bool#>)
+        upperLeftCorner.addArc(withCenter: upperLeftPoint.offsetBy(dx: cornerRadius, dy: cornerRadius), radius: cornerRadius, startAngle: .pi, endAngle: 3 * .pi / 2, clockwise: true)
+        upperLeftCorner.addLine(to: upperLeftPoint.offsetBy(dx: cornerLength, dy: 0))
+
+        let upperRightCorner = UIBezierPath()
+        upperRightCorner.move(to: upperRightPoint.offsetBy(dx: -cornerLength, dy: 0))
+        upperRightCorner.addArc(withCenter: upperRightPoint.offsetBy(dx: -cornerRadius, dy: cornerRadius),
+                              radius: cornerRadius, startAngle: 3 * .pi / 2, endAngle: 0, clockwise: true)
+        upperRightCorner.addLine(to: upperRightPoint.offsetBy(dx: 0, dy: cornerLength))
+
+        let lowerRightCorner = UIBezierPath()
+        lowerRightCorner.move(to: lowerRightPoint.offsetBy(dx: 0, dy: -cornerLength))
+        lowerRightCorner.addArc(withCenter: lowerRightPoint.offsetBy(dx: -cornerRadius, dy: -cornerRadius),
+                                 radius: cornerRadius, startAngle: 0, endAngle: .pi / 2, clockwise: true)
+        lowerRightCorner.addLine(to: lowerRightPoint.offsetBy(dx: -cornerLength, dy: 0))
+
+        let bottomLeftCorner = UIBezierPath()
+        bottomLeftCorner.move(to: lowerLeftPoint.offsetBy(dx: cornerLength, dy: 0))
+        bottomLeftCorner.addArc(withCenter: lowerLeftPoint.offsetBy(dx: cornerRadius, dy: -cornerRadius),
+                                radius: cornerRadius, startAngle: .pi / 2, endAngle: .pi, clockwise: true)
+        bottomLeftCorner.addLine(to: lowerLeftPoint.offsetBy(dx: 0, dy: -cornerLength))
         
+        let combinedPath = CGMutablePath()
+        combinedPath.addPath(upperLeftCorner.cgPath)
+        combinedPath.addPath(upperRightCorner.cgPath)
+        combinedPath.addPath(lowerRightCorner.cgPath)
+        combinedPath.addPath(bottomLeftCorner.cgPath)
+        
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.path = combinedPath
+        shapeLayer.strokeColor = UIColor.white.cgColor
+        shapeLayer.fillColor = UIColor.clear.cgColor
+        shapeLayer.lineWidth = cornerLineWidth
+        shapeLayer.lineCap = .square
+
+        self.previewLayer!.addSublayer(shapeLayer)
     }
 }
 
